@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'signup_screen.dart'; // Make sure you've created this file
+import 'package:google_sign_in/google_sign_in.dart';
+import 'phone_auth_screen.dart';
+import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,52 +12,69 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
 
-  // This function now ONLY handles signing in.
-  Future<void> _login() async {
-    // Basic validation to prevent empty submissions
+  Future<void> _signInWithEmail() async {
+    // This logic is standard and should work fine.
     if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter both email and password.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter both email and password.')));
       return;
     }
-
     setState(() => _isLoading = true);
-
     try {
-      // Attempt to sign in the user
       await _auth.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-      // On success, the AuthWrapper in main.dart will automatically navigate to HomeScreen.
+          email: _emailController.text.trim(), password: _passwordController.text.trim());
     } on FirebaseAuthException catch (e) {
-      // Handle specific errors for a better user experience
       String message = 'An error occurred. Please try again.';
-      if (e.code == 'user-not-found') {
-        message = 'No user found for that email.';
-      } else if (e.code == 'wrong-password') {
-        message = 'Wrong password provided for that user.';
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      if (e.code == 'user-not-found') message = 'No user found for that email.';
+      else if (e.code == 'wrong-password') message = 'Wrong password provided.';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
     } finally {
-      // Ensure the loading indicator is turned off
-      if (mounted) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  // --- THIS IS THE CORRECT GOOGLE SIGN-IN LOGIC FOR THE PACKAGES SPECIFIED ABOVE ---
+  Future<void> _signInWithGoogle() async {
+    setState(() => _isLoading = true);
+    try {
+      // 1. Create an instance of the Google provider
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+
+      // 2. Start the interactive sign-in process
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+      // 3. If the user cancelled the process, stop
+      if (googleUser == null) {
         setState(() => _isLoading = false);
+        return;
       }
+
+      // 4. Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      // 5. Create a new credential for Firebase
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // 6. Sign in to Firebase with the credential
+      await _auth.signInWithCredential(credential);
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Google Sign-In Failed. Please ensure you have an internet connection and have configured your app correctly in Firebase.')));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   void dispose() {
-    // Clean up controllers when the widget is removed
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -63,74 +82,35 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // The UI part remains the same
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Kisan Samriddhi',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green[800],
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text('Welcome back, please sign in', style: TextStyle(fontSize: 16, color: Colors.grey)),
-              const SizedBox(height: 40),
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.email),
-                ),
-                keyboardType: TextInputType.emailAddress,
-              ),
+              Text('Kisan Samriddhi', textAlign: TextAlign.center, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.green[800])),
               const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.lock),
-                ),
-                obscureText: true,
-              ),
+              const Text('Welcome! Sign in to continue.', textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Colors.grey)),
+              const SizedBox(height: 40),
+              TextField(controller: _emailController, decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder(), prefixIcon: Icon(Icons.email)), keyboardType: TextInputType.emailAddress),
+              const SizedBox(height: 16),
+              TextField(controller: _passwordController, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder(), prefixIcon: Icon(Icons.lock)), obscureText: true),
               const SizedBox(height: 24),
-              _isLoading
-                  ? const CircularProgressIndicator()
-                  : SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text('Login', style: TextStyle(fontSize: 18, color: Colors.white)),
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Button to navigate to the Sign Up screen
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SignUpScreen()),
-                  );
-                },
-                child: const Text(
-                  "Don't have an account? Sign Up",
-                  style: TextStyle(color: Colors.green, fontSize: 16),
-                ),
-              ),
+              if (_isLoading)
+                const Center(child: CircularProgressIndicator())
+              else
+                Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  ElevatedButton(onPressed: _signInWithEmail, style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)), child: const Text('Login with Email', style: TextStyle(fontSize: 18))),
+                  const SizedBox(height: 12),
+                  TextButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SignUpScreen())), child: const Text("Don't have an account? Sign Up")),
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 16.0), child: Row(children: [Expanded(child: Divider()), Padding(padding: EdgeInsets.symmetric(horizontal: 8.0), child: Text('OR', style: TextStyle(color: Colors.grey))), Expanded(child: Divider())])),
+                  ElevatedButton.icon(icon: Image.asset('assets/images.png', height: 22.0), label: const Text('Sign in with Google'), onPressed: _signInWithGoogle, style: ElevatedButton.styleFrom(foregroundColor: Colors.black, backgroundColor: Colors.white, minimumSize: const Size(double.infinity, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0), side: const BorderSide(color: Colors.grey)))),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(icon: const Icon(Icons.phone, color: Colors.white), label: const Text('Sign in with Phone'), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PhoneAuthScreen())), style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.green, minimumSize: const Size(double.infinity, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)))),
+                ]),
             ],
           ),
         ),
