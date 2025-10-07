@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'home_screen.dart';
 
 class PhoneAuthScreen extends StatefulWidget {
   const PhoneAuthScreen({super.key});
@@ -14,35 +16,75 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
   final _auth = FirebaseAuth.instance;
 
   String? _verificationId;
+  int? _resendToken;
   bool _isLoading = false;
   bool _isCodeSent = false;
 
+  Timer? _timer;
+  int _countdown = 30;
+
+  // 1. THE FIRST PART OF THE FIX
+  // The dispose method is called when the widget is permanently removed.
+  // We MUST cancel the timer here to prevent it from running in the background.
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _phoneController.dispose();
+    _otpController.dispose();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _countdown = 30;
+    _timer?.cancel(); // Cancel any existing timer before starting a new one
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_countdown > 0) {
+        // 2. THE SECOND PART OF THE FIX
+        // We check if the widget is still 'mounted' (i.e., on the screen)
+        // before trying to update its state.
+        if (mounted) {
+          setState(() => _countdown--);
+        }
+      } else {
+        _timer?.cancel();
+      }
+    });
+  }
+
   Future<void> _verifyPhoneNumber() async {
+    // This logic remains the same
     setState(() => _isLoading = true);
     await _auth.verifyPhoneNumber(
-      phoneNumber: '+91${_phoneController.text.trim()}', // Assuming Indian numbers
+      phoneNumber: '+91${_phoneController.text.trim()}',
+      forceResendingToken: _resendToken,
       verificationCompleted: (PhoneAuthCredential credential) async {
         await _auth.signInWithCredential(credential);
+        _navigateToHome();
       },
       verificationFailed: (FirebaseAuthException e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Verification Failed: ${e.message}')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Verification Failed: ${e.message}')));
+        }
       },
       codeSent: (String verificationId, int? resendToken) {
-        setState(() {
-          _verificationId = verificationId;
-          _isCodeSent = true;
-        });
+        if (mounted) {
+          setState(() {
+            _verificationId = verificationId;
+            _resendToken = resendToken;
+            _isCodeSent = true;
+          });
+          _startTimer();
+        }
       },
       codeAutoRetrievalTimeout: (String verificationId) {
-        setState(() => _verificationId = verificationId);
+        if (mounted) setState(() => _verificationId = verificationId);
       },
     );
-    setState(() => _isLoading = false);
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _signInWithOTP() async {
+    // This logic remains the same
     setState(() => _isLoading = true);
     try {
       final credential = PhoneAuthProvider.credential(
@@ -50,20 +92,25 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
         smsCode: _otpController.text.trim(),
       );
       await _auth.signInWithCredential(credential);
-      // The AuthWrapper will handle navigation
+      _navigateToHome();
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sign In Failed: ${e.message}')),
-      );
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sign In Failed: ${e.message}')));
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _navigateToHome() {
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (Route<dynamic> route) => false,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    // The UI part remains the same
     return Scaffold(
       appBar: AppBar(title: const Text('Phone Verification')),
       body: Padding(
@@ -73,37 +120,29 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (!_isCodeSent)
-            // Phone number input field
-              TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: '10-digit Mobile Number',
-                  prefixText: '+91 ',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.phone,
-              )
+              TextFormField(controller: _phoneController, decoration: const InputDecoration(labelText: '10-digit Mobile Number', prefixText: '+91 ', border: OutlineInputBorder()), keyboardType: TextInputType.phone)
             else
-            // OTP input field
-              TextFormField(
-                controller: _otpController,
-                decoration: const InputDecoration(
-                  labelText: 'Enter 6-digit OTP',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-              ),
+              TextFormField(controller: _otpController, decoration: const InputDecoration(labelText: 'Enter 6-digit OTP', border: OutlineInputBorder()), keyboardType: TextInputType.number),
             const SizedBox(height: 24),
             _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : ElevatedButton(
-              onPressed: _isCodeSent ? _signInWithOTP : _verifyPhoneNumber,
-              child: Text(_isCodeSent ? 'Verify & Sign In' : 'Send OTP'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.green,
-                minimumSize: const Size(double.infinity, 50),
+                onPressed: _isCodeSent ? _signInWithOTP : _verifyPhoneNumber,
+                child: Text(_isCodeSent ? 'Verify & Sign In' : 'Send OTP'),
+                style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.green, minimumSize: const Size(double.infinity, 50))),
+            if (_isCodeSent)
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Didn't receive code? "),
+                    _countdown > 0
+                        ? Text("Resend in $_countdown s", style: const TextStyle(color: Colors.grey))
+                        : TextButton(onPressed: _verifyPhoneNumber, child: const Text("Resend OTP")),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),

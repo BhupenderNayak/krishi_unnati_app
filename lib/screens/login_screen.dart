@@ -37,11 +37,53 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _showForgotPasswordDialog() {
+    final TextEditingController emailController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Reset Password"),
+          content: TextField(
+            controller: emailController,
+            decoration: const InputDecoration(hintText: "Enter your email"),
+            keyboardType: TextInputType.emailAddress,
+          ),
+          actions: [
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            ElevatedButton(
+              child: const Text("Send Link"),
+              onPressed: () async {
+                if (emailController.text.trim().isNotEmpty) {
+                  try {
+                    await _auth.sendPasswordResetEmail(email: emailController.text.trim());
+                    Navigator.of(context).pop(); // Close dialog
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Password reset link sent to your email.")),
+                    );
+                  } on FirebaseAuthException catch (e) {
+                    Navigator.of(context).pop(); // Close dialog
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.message ?? "An error occurred.")),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   // --- THIS IS THE CORRECT GOOGLE SIGN-IN LOGIC FOR THE PACKAGES SPECIFIED ABOVE ---
   Future<void> _signInWithGoogle() async {
     setState(() => _isLoading = true);
     try {
       // 1. Create an instance of the Google provider
+      await GoogleSignIn().signOut();
       final GoogleSignIn googleSignIn = GoogleSignIn();
 
       // 2. Start the interactive sign-in process
@@ -99,6 +141,17 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 16),
               TextField(controller: _passwordController, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder(), prefixIcon: Icon(Icons.lock)), obscureText: true),
               const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, bottom: 12.0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: _showForgotPasswordDialog,
+                    child: const Text("Forgot Password?"),
+                  ),
+                ),
+              ),
+
               if (_isLoading)
                 const Center(child: CircularProgressIndicator())
               else
