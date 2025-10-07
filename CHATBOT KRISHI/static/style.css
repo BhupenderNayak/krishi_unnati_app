@@ -1,0 +1,83 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to bottom right, #e8f5e9, #c8e6c9);
+  margin: 0;
+  padding: 20px;
+}
+
+.main-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.1);
+}
+
+.card h3 {
+  color: #2e7d32;
+  margin-top: 0;
+}
+
+.result-box {
+  background: #f1f8e9;
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 10px;
+  min-height: 40px;
+  border: 1px solid #c5e1a5;
+}
+
+.chat-box {
+  background: #f0f9f0;
+  height: 250px;
+  overflow-y: auto;
+  border: 1px solid #a5d6a7;
+  border-radius: 12px;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+.user, .bot {
+  margin: 6px 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+.user {
+  background: #c8e6c9;
+  float: right;
+  clear: both;
+}
+
+.bot {
+  background: #e8f5e9;
+  float: left;
+  clear: both;
+}
+
+button {
+  background: #43a047;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #2e7d32;
+}
+
+input, select {
+  width: 100%;
+  margin: 5px 0;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #81c784;
+}

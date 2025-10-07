@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Krishi Samvaad 🌾</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #f8fafc;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      margin: 0;
+      padding: 1rem;
+    }
+    h1 {
+      color: #166534;
+      margin-bottom: 1rem;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 1rem;
+    }
+    select, button, input {
+      width: 100%;
+      padding: 0.7rem;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #16a34a;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #15803d;
+    }
+    .output {
+      white-space: pre-line;
+      margin-top: 1rem;
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 0.8rem;
+      border-left: 4px solid #16a34a;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌾 Krishi Samvaad Chatbot</h1>
+
+  <!-- Weather Section -->
+  <div class="card">
+    <h2>🌤 Weather Info</h2>
+    <input type="text" id="city" placeholder="Enter city (e.g. Delhi)" />
+    <button onclick="getWeather()">Get Weather</button>
+    <div id="weatherResult" class="output"></div>
+  </div>
+
+  <!-- Crop Price Section -->
+  <div class="card">
+    <h2>💰 Crop Price Info</h2>
+    <label for="crop">Select Crop:</label>
+    <select id="crop">
+      <option value="">-- Select Crop --</option>
+      {% for c in crops %}
+      <option value="{{ c }}">{{ c }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="mandi">Select Mandi:</label>
+    <select id="mandi">
+      <option value="">-- Select Mandi --</option>
+      {% for m in mandis %}
+      <option value="{{ m }}">{{ m }}</option>
+      {% endfor %}
+    </select>
+
+    <button onclick="getPrice()">Get Price</button>
+    <div id="priceResult" class="output"></div>
+  </div>
+
+  <!-- Chatbot Section -->
+  <div class="card">
+    <h2>🤖 Chatbot</h2>
+    <input type="text" id="msg" placeholder="Type your message..." />
+    <button onclick="sendMsg()">Send</button>
+    <div id="chatResult" class="output"></div>
+  </div>
+
+  <script>
+    async function getWeather() {
+      const city = document.getElementById("city").value;
+      const formData = new FormData();
+      formData.append("msg", `weather in ${city}`);
+
+      const res = await fetch("/get", { method: "POST", body: formData });
+      const data = await res.json();
+      document.getElementById("weatherResult").innerText = data.reply;
+    }
+
+    async function getPrice() {
+      const crop = document.getElementById("crop").value;
+      const mandi = document.getElementById("mandi").value;
+      const formData = new FormData();
+      formData.append("crop", crop);
+      formData.append("mandi", mandi);
+
+      const res = await fetch("/get", { method: "POST", body: formData });
+      const data = await res.json();
+      document.getElementById("priceResult").innerText = data.reply;
+    }
+
+    async function sendMsg() {
+      const msg = document.getElementById("msg").value;
+      const formData = new FormData();
+      formData.append("msg", msg);
+
+      const res = await fetch("/get", { method: "POST", body: formData });
+      const data = await res.json();
+      document.getElementById("chatResult").innerText = data.reply;
+    }
+  </script>
+</body>
+</html>
