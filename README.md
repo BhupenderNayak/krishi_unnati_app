@@ -1,46 +1,98 @@
-# Kisan Unnati App
+# Kisan Unnati 🌾
 
-## 🌾 Digital Empowerment for Farmers
+**Digital Empowerment for Indian Farmers**
 
-**Problem:**
-Indian farmers often lack timely access to critical information like accurate market prices, weather forecasts, and modern agricultural practices. The fragmented information sources make informed decision-making difficult, leading to potential losses and missed opportunities.
+## 🎯 The Problem
 
-**Solution:**
-Kisan Unnati is an all-in-one mobile application designed to empower farmers with essential tools and information, consolidated into a single, easy-to-use platform. It aims to bridge the information gap and foster a connected farming community.
+Indian farmers often lack timely access to critical information like accurate market prices, weather forecasts, and modern agricultural practices. This information gap makes it difficult to make informed decisions, leading to potential losses and missed opportunities.
+
+## ✨ Our Solution
+
+Kisan Unnati is an all-in-one mobile application designed to empower farmers with the essential tools and information they need, consolidated into a single, easy-to-use platform.
 
 ---
 
-## ✨ Key Features:
+## 🚀 Key Features
 
 1.  **Live Market Price Fetcher:**
-    * Get real-time (last 7 days) market prices for various commodities (Onion, Potato, Tomato, Wheat, Paddy) across different states, districts, and markets in India.
-    * Helps farmers make informed decisions on when and where to sell their produce for maximum profit.
+    * Fetches real-time (last 7 days) market prices for various commodities across different states, districts, and markets in India using a robust Selenium-based scraper.
 
 2.  **Krishi Mitra - AI Chatbot:**
-    * A powerful, multilingual AI assistant that understands queries in both **Hindi and Hinglish**.
-    * Provides instant answers to agricultural questions, weather updates, crop advice, soil health tips, and more. (Powered by Groq's Llama3-8B model)
+    * A powerful, multilingual AI assistant that understands queries in **English, Hindi, and Hinglish**.
+    * Provides instant answers to farming questions. (Powered by Groq's ultra-fast Llama-3.1 model).
 
-3.  **Community Feed:**
-    * A platform for farmers to connect, share experiences, ask questions, and learn from each other.
-    * Fosters a supportive network for knowledge exchange.
+3.  **Farmer Community (Demo):**
+    * A beautifully designed UI showcasing a community feed where farmers can connect and share knowledge. The "Create Post" button opens a functional UI, ready for backend integration.
 
-4.  **Marketplace :**
-    * A placeholder for a future e-commerce platform where farmers can buy and sell agricultural products, tools, and seeds. (Currently static/dummy data).
+4.  **Marketplace:**
+    * A grid-view marketplace displaying various agricultural products like fertilizers, seeds, and equipment with images stored locally within the app for fast and reliable loading.
 
 ---
 
-## 🚀 How to Run the App (Local Setup Guide):
+## 🔧 How to Run the App
 
-To get the Kisan Unnati app up and running on your local machine, please follow these steps carefully.
+### Prerequisites
+* Flutter SDK
+* Python 3.x
+* Google Chrome Browser (Updated)
 
-### Prerequisites:
-* **Flutter SDK:** Make sure Flutter is installed and configured (`flutter doctor` should show no issues).
-* **Python 3.x:** Installed on your system.
-* **Git:** For cloning the repository.
-* **Google Chrome Browser:** Required for the price fetching (Selenium).
+### 1. Backend Setup (Python APIs)
 
-### Step 1: Clone the Repository
+The app requires two separate Python Flask servers.
 
-```bash
-git clone [https://github.com/BhupenderNayak/krishi_unnati_app.git](https://github.com/BhupenderNayak/krishi_unnati_app.git)
-cd krishi_unnati_app
+1.  **Activate the Virtual Environment:**
+    * Open a terminal in the project's root folder.
+    * Run: `venv\Scripts\activate`
+
+2.  **Install Python Dependencies:**
+    * (Make sure you are inside the activated `venv`)
+    * Run: `pip install -r requirements.txt`
+
+3.  **Start the Servers:**
+    * Open **two separate terminals**, and activate the `venv` in both.
+    * **Terminal 1 (Price API):**
+        ```bash
+        python price_api.py
+        ```
+        *(This will run on `http://0.0.0.0:5000`)*
+    * **Terminal 2 (Chat API):**
+        ```bash
+        python chat_api.py
+        ```
+        *(This will run on `http://0.0.0.0:5001`)*
+
+### 2. Frontend Setup (Flutter App)
+
+1.  **Install Flutter Dependencies:**
+    ```bash
+    flutter pub get
+    ```
+
+2.  **Configure API Host IP (CRUCIAL for Real Device):**
+    * Open `lib/services/api_service.dart`.
+    * Find the `_priceApiBaseUrl` and `_chatApiBaseUrl` variables.
+    * Replace the IP address with your computer's actual Wi-Fi IP address.
+        * To find your IP: Open Command Prompt and type `ipconfig`. Look for "IPv4 Address".
+    * **Example:**
+    * Note i made some comments in the file from where you can put your ip address
+        ```dart
+        
+        final String _priceApiBaseUrl = '[http://192.168.1.5:5000](http://192.168.1.5:5000)'; // YOUR IP
+        final String _chatApiBaseUrl = '[http://192.168.1.5:5001](http://192.168.1.5:5001)';   // YOUR IP
+        ```
+
+3.  **Run the Flutter App:**
+    ```bash
+    flutter run
+    ```
+    * Make sure your phone and computer are on the **same Wi-Fi network**.
+    * Ensure your **Windows Firewall** allows Python to communicate on ports 5000 and 5001.
+
+---
+
+## 💡 Future Plans
+
+* **Live Dashboard:** Integrate live weather and price data onto the main dashboard.
+* **Functional Community:** Connect the community feature to Firebase for real-time posts and likes.
+* **Voice Commands:** Add a speech-to-text feature to the AI Chatbot.
+* **Image Recognition:** Allow farmers to upload photos of diseased crops to the chatbot for instant advice.
