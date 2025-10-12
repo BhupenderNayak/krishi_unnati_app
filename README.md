@@ -35,7 +35,12 @@ Kisan Unnati is an all-in-one mobile application designed to empower farmers wit
 * Flutter SDK
 * Python 3.x
 * Google Chrome Browser (Updated)
+  
+### Step 1: Clone the Repository
 
+```bash
+git clone [https://github.com/BhupenderNayak/krishi_unnati_app.git](https://github.com/BhupenderNayak/krishi_unnati_app.git)
+cd krishi_unnati_app
 ### 1. Backend Setup (Python APIs)
 
 The app requires two separate Python Flask servers.
