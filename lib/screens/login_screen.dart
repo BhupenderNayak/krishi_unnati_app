@@ -18,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   Future<void> _signInWithEmail() async {
-    // This logic is standard and should work fine.
+
     if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter both email and password.')));
       return;
@@ -60,12 +60,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 if (emailController.text.trim().isNotEmpty) {
                   try {
                     await _auth.sendPasswordResetEmail(email: emailController.text.trim());
-                    Navigator.of(context).pop(); // Close dialog
+                    Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Password reset link sent to your email.")),
                     );
                   } on FirebaseAuthException catch (e) {
-                    Navigator.of(context).pop(); // Close dialog
+                    Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(e.message ?? "An error occurred.")),
                     );
@@ -78,33 +78,33 @@ class _LoginScreenState extends State<LoginScreen> {
       },
     );
   }
-  // --- THIS IS THE CORRECT GOOGLE SIGN-IN LOGIC FOR THE PACKAGES SPECIFIED ABOVE ---
+
   Future<void> _signInWithGoogle() async {
     setState(() => _isLoading = true);
     try {
-      // 1. Create an instance of the Google provider
+
       await GoogleSignIn().signOut();
       final GoogleSignIn googleSignIn = GoogleSignIn();
 
-      // 2. Start the interactive sign-in process
+
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
-      // 3. If the user cancelled the process, stop
+
       if (googleUser == null) {
         setState(() => _isLoading = false);
         return;
       }
 
-      // 4. Obtain the auth details from the request
+
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-      // 5. Create a new credential for Firebase
+
       final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // 6. Sign in to Firebase with the credential
+
       await _auth.signInWithCredential(credential);
 
     } catch (e) {
@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // The UI part remains the same
+
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -133,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Kisan Samriddhi', textAlign: TextAlign.center, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.green[800])),
+              Text('Kisan Unnati', textAlign: TextAlign.center, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.green[800])),
               const SizedBox(height: 16),
               const Text('Welcome! Sign in to continue.', textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Colors.grey)),
               const SizedBox(height: 40),

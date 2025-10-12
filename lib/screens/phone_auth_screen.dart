@@ -23,9 +23,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
   Timer? _timer;
   int _countdown = 30;
 
-  // 1. THE FIRST PART OF THE FIX
-  // The dispose method is called when the widget is permanently removed.
-  // We MUST cancel the timer here to prevent it from running in the background.
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -36,12 +34,10 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
   void _startTimer() {
     _countdown = 30;
-    _timer?.cancel(); // Cancel any existing timer before starting a new one
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_countdown > 0) {
-        // 2. THE SECOND PART OF THE FIX
-        // We check if the widget is still 'mounted' (i.e., on the screen)
-        // before trying to update its state.
+
         if (mounted) {
           setState(() => _countdown--);
         }
@@ -110,7 +106,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // The UI part remains the same
+
     return Scaffold(
       appBar: AppBar(title: const Text('Phone Verification')),
       body: Padding(

@@ -1,0 +1,12 @@
+[
+  { "id": 1, "name": "Urea Fertilizer Bag", "category": "Fertilizers", "price": 599.00, "imageUrl": "assets/images/urea.jpg", "description": "High-quality nitrogen fertilizer." },
+  { "id": 2, "name": "DAP Fertilizer Bag", "category": "Fertilizers", "price": 850.00, "imageUrl": "assets/images/dap.jpg", "description": "Provides essential phosphorus and nitrogen." },
+  { "id": 3, "name": "High Quality Wheat Seeds", "category": "Seeds", "price": 250.00, "imageUrl": "assets/images/wheat_seeds.jpg", "description": "High-yield hybrid wheat seeds." },
+  { "id": 4, "name": "Premium Maize Seeds", "category": "Seeds", "price": 320.00, "imageUrl": "assets/images/maize_seeds.jpg", "description": "Premium quality maize (corn) seeds." },
+  { "id": 5, "name": "Farming Sprayer Pump", "category": "Equipment", "price": 1200.00, "imageUrl": "assets/images/sprayer.jpg", "description": "Durable and easy-to-use sprayer pump." },
+  { "id": 6, "name": "Steel Hand Trowel", "category": "Equipment", "price": 199.00, "imageUrl": "assets/images/trowel.jpg", "description": "Strong metal hand trowel for digging." },
+  { "id": 7, "name": "Organic Vermicompost", "category": "Fertilizers", "price": 450.00, "imageUrl": "assets/images/vermicompost.jpg", "description": "100% organic earthworm compost." },
+  { "id": 8, "name": "Mustard Seeds Pack", "category": "Seeds", "price": 150.00, "imageUrl": "assets/images/mustard_seeds.jpg", "description": "High-quality mustard seeds." },
+  { "id": 9, "name": "Durable Farming Gloves", "category": "Equipment", "price": 299.00, "imageUrl": "assets/images/gloves.jpg", "description": "Durable rubber gloves to protect hands." },
+  { "id": 10, "name": "Small Farm Tractor", "category": "Equipment", "price": 250000.00, "imageUrl": "assets/images/tractor.jpg", "description": "Compact and powerful mini tractor." }
+]

@@ -1,11 +1,12 @@
-
-
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:krishi_01/screens/view_profile.dart';
+import 'package:krishi_01/features/marketplace.dart';
+import 'package:krishi_01/features/price.dart';
+import 'package:krishi_01/screens/chat_screen.dart';
 
-import 'profile_screen.dart';
+
+import 'community_feed_screen.dart';
+import 'dashboard.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,105 +17,83 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _auth = FirebaseAuth.instance;
-  final _firestore = FirebaseFirestore.instance;
+  int _selectedIndex = 0;
 
-  bool _isLoading = true;
-  bool _profileExists = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _checkProfileStatus();
-  }
+  static const List<Widget> _pages = <Widget>[
+    DashboardPage(),
+    ChatScreen(),
+    KrishiApp() ,
+    MarketplaceScreen(),
+    CommunityFeedScreen(),
 
-  Future<void> _checkProfileStatus() async {
-    final user = _auth.currentUser;
-    if (user == null) {
-      setState(() => _isLoading = false);
-      return;
-    }
-    try {
-      final doc = await _firestore.collection('farmers').doc(user.uid).get();
-      if (mounted) {
-        setState(() {
-          _profileExists = doc.exists;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
-    }
+
+  ];
+
+
+  static const List<String> _pageTitles = <String>[
+    'Dashboard',
+    'Krishi Mitra AI',
+    'Check Prices',
+    'MarketPlace',
+    'Community'
+
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = _auth.currentUser;
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kisan Dashboard'),
+        title: Text(_pageTitles[_selectedIndex]),
+
+
         actions: [
-          IconButton(
-            icon: const Icon(Icons.account_circle),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const ViewProfileScreen()))
-                  .then((_) => _checkProfileStatus());
-            },
-            tooltip: 'My Profile',
-          ),
-          // THIS IS THE CORRECT AND ONLY SIGNOUT LOGIC YOU NEED
+
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await _auth.signOut();
-              // The AuthWrapper in main.dart will handle navigation automatically.
             },
             tooltip: 'Logout',
           ),
         ],
       ),
-      body: Center(
-        // ... (The rest of your HomeScreen UI remains the same)
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text('Welcome, ${user?.email ?? user?.phoneNumber ?? 'Farmer'}!', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 40),
-              if (_isLoading)
-                const CircularProgressIndicator()
-              else
-                _buildProfileButton(context),
-            ],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_filled),
+            label: 'Home',
           ),
-        ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.support_agent),
+            label: 'Chatbot',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Prices',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.storefront),
+            label: 'Market',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Community'),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.green[800],
+        unselectedItemColor: Colors.grey[600],
+        onTap: _onItemTapped,
       ),
     );
-  }
-
-  Widget _buildProfileButton(BuildContext context) {
-    // ... (This helper widget also remains the same)
-    if (_profileExists) {
-      return ElevatedButton.icon(
-        icon: const Icon(Icons.person),
-        label: const Text('View My Profile'),
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const ViewProfileScreen()))
-              .then((_) => _checkProfileStatus());
-        },
-        // ... styles
-      );
-    } else {
-      return ElevatedButton.icon(
-        icon: const Icon(Icons.edit_document),
-        label: const Text('Create Your Farmer Profile'),
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()))
-              .then((_) => _checkProfileStatus());
-        },
-        // ... styles
-      );
-    }
   }
 }

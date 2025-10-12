@@ -28,6 +28,8 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+#  speech_to_text: ^6.3.0 # For voice commands
+#  permission_handler: ^11.3.1
   firebase_core: ^2.27.0
   firebase_auth: ^4.17.8
   google_sign_in: ^6.2.1
@@ -42,7 +44,10 @@ dependencies:
 
     # For making HTTP requests (to get weather data)
   http: ^1.2.1
-
+  intl: ^0.19.0
+  timeago: ^3.6.1
+  flutter_launcher_icons:
+  flutter_native_splash:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -74,7 +79,9 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-     - assets/
+    - assets/images/
+    - assets/products.json
+    - assets/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -102,3 +109,28 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_launcher_icons:
+  android: "launcher_icon" # Android ke liye icon ka naam
+  ios: true                # iOS ke liye bhi icon generate karein
+  image_path: "assets/Logo.jpg" # Aapki icon file ka path
+  min_sdk_android: 21      # Minimum Android SDK version
+
+
+flutter_native_splash:
+  color: "#FFFFFF" # Background color (safed)
+
+  # Hum ab nayi, badi wali image file use karenge
+  image: "assets/splash_logo.jpg"
+
+  # Fullscreen karne ke liye
+  fullscreen: true
+
+  # Android 12+ ke liye special settings
+  android_12:
+    image: "assets/splash_logo.jpg"
+    icon_background_color: "#FFFFFF"
+
+  # Baaki platforms ke liye
+  android: true
+  ios: true
+  web: false

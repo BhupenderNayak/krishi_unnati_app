@@ -5,9 +5,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
 class ProfileScreen extends StatefulWidget {
-  // 1. THIS CONSTRUCTOR IS THE KEY CHANGE
-  // It accepts an optional map of data. If the map is provided,
-  // the screen knows it's in "Edit Mode".
   final Map<String, dynamic>? initialData;
 
   const ProfileScreen({super.key, this.initialData});
@@ -38,9 +35,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isFetchingLocation = false;
   String _address = "";
 
-  // 2. THE initState METHOD
-  // This runs when the screen is first built. We check for initialData here
-  // and pre-fill all the form fields if it exists.
   @override
   void initState() {
     super.initState();
@@ -157,7 +151,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // 3. DYNAMIC TITLE
         title: Text(widget.initialData == null ? 'Create Profile' : 'Edit Profile'),
         actions: [
           IconButton(
@@ -174,7 +167,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              // -- Sections and Fields (This part remains the same) --
               _buildSectionHeader('Personal Details'),
               _buildTextField(_nameController, 'Full Name', 'Please enter your name'),
               const SizedBox(height: 16),

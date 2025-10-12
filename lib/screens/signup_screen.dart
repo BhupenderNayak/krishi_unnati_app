@@ -29,8 +29,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      // The AuthWrapper in main.dart will see the new user and navigate to HomeScreen
-      if(mounted) Navigator.of(context).pop(); // Go back to login screen after success
+
+      if(mounted) Navigator.of(context).pop();
 
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

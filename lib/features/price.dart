@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:io'; // Needed for Platform check
 
-// --- 1. Data Models for the API Response ---
-// This helps us work with the JSON data in a type-safe way.
 class PriceRecord {
   final String date;
   final String minPrice;
@@ -46,9 +43,6 @@ class ApiResponse {
   }
 }
 
-void main() {
-  runApp(const KrishiApp());
-}
 
 class KrishiApp extends StatelessWidget {
   const KrishiApp({super.key});
@@ -56,15 +50,7 @@ class KrishiApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Krishi App',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        scaffoldBackgroundColor: Colors.grey[100],
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.white,
-        ),
-      ),
+
       home: const PriceFinderScreen(),
       debugShowCheckedModeBanner: false,
     );
@@ -79,8 +65,7 @@ class PriceFinderScreen extends StatefulWidget {
 }
 
 class _PriceFinderScreenState extends State<PriceFinderScreen> {
-  // --- 2. State Variables ---
-  // Data for dropdowns
+
   final List<String> _commodities = ["Onion", "Potato", "Tomato", "Wheat", "Paddy"];
   final Map<String, Map<String, List<String>>> _locationData = {
     "Maharashtra": {
@@ -126,16 +111,19 @@ class _PriceFinderScreenState extends State<PriceFinderScreen> {
       _errorMessage = null;
     });
 
-    // IMPORTANT: Use 10.0.2.2 for Android Emulator. For a real device,
-    // you would replace this with your computer's Wi-Fi IP address.
-    const String host = '10.0.2.2';
+
+    const String host = '10.223.35.72'; // Your computer ip address
     final url = Uri.parse(
         'http://$host:5000/price?commodity=$_selectedCommodity&state=$_selectedState&district=$_selectedDistrict&market=$_selectedMarket&days=7');
 
     print('Calling API: $url');
 
     try {
-      final response = await http.get(url).timeout(const Duration(seconds: 45));
+
+      final response = await http.get(url);
+
+      if (!mounted) return;
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
@@ -153,23 +141,22 @@ class _PriceFinderScreenState extends State<PriceFinderScreen> {
       }
     } catch (e) {
       print('Error fetching data: $e');
+      if (!mounted) return;
       setState(() {
-        _errorMessage = 'Failed to connect to the server. Make sure your Python API is running.';
+        _errorMessage = 'Failed to connect to the server. Make sure your Python API is running and accessible.';
       });
     } finally {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
     }
   }
 
-  // --- 4. Build Method for UI ---
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Krishi App - Price Finder'),
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -270,7 +257,19 @@ class _PriceFinderScreenState extends State<PriceFinderScreen> {
 
   Widget _buildResultsSection() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: Column(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text(
+              'Fetching prices from server...\nThis can take up to 2 minutes. Please be patient.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+          ],
+        ),
+      );
     }
     if (_errorMessage != null) {
       return Card(
@@ -288,7 +287,7 @@ class _PriceFinderScreenState extends State<PriceFinderScreen> {
     if (_apiResponse != null && _apiResponse!.results.isNotEmpty) {
       return _buildResultsTable();
     }
-    return const SizedBox.shrink(); // Empty space if no action taken yet
+    return const SizedBox.shrink();
   }
 
   Widget _buildResultsTable() {
@@ -317,5 +316,3 @@ class _PriceFinderScreenState extends State<PriceFinderScreen> {
     );
   }
 }
-
-

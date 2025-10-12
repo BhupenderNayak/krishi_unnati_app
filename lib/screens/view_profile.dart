@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'profile_screen.dart'; // Import the screen for editing
+import 'profile_screen.dart';
 
 class ViewProfileScreen extends StatefulWidget {
   const ViewProfileScreen({super.key});
@@ -14,7 +14,6 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
-  // 1. ADD A VARIABLE to hold the profile data once fetched
   Map<String, dynamic>? _profileData;
 
   Future<DocumentSnapshot<Map<String, dynamic>>> _fetchProfile() {
@@ -47,11 +46,11 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                     await _firestore.collection('farmers').doc(user.uid).delete();
                   }
                   if (mounted) {
-                    Navigator.of(context).pop(); // Close dialog
-                    Navigator.of(context).pop(); // Go back from profile screen
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
                   }
                 } catch (e) {
-                  // Handle error
+
                 }
               },
             ),
@@ -87,7 +86,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
             return const Center(child: Text('No profile found. Please create one.'));
           }
 
-          // 2. STORE the fetched data in our new variable
+
           _profileData = snapshot.data!.data();
           final data = _profileData!;
 
@@ -114,16 +113,16 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // 3. THE FIX: Check if our data variable has been filled, then pass it directly.
+
           if (_profileData != null) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                // This is now much simpler and more reliable
+
                 builder: (context) => ProfileScreen(initialData: _profileData),
               ),
             ).then((_) {
-              // This makes the screen refresh with new data after you finish editing
+
               setState(() {});
             });
           }
