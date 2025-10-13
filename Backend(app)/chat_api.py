@@ -5,7 +5,7 @@ from groq import Groq
 app = Flask(__name__)
 
 # Yahan apna Groq API Key daalein aur ise uncomment kare
-# GROQ_API_KEY = "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" Put your groq api key here
+GROQ_API_KEY = "YOUR_GROQ_API_KEY" Put your groq api key here
 
 client = Groq(api_key=GROQ_API_KEY)
 
@@ -42,4 +42,5 @@ def chat():
 
 if __name__ == "__main__":
     print("Naya Chatbot API (Groq) chal raha hai http://127.0.0.1:5001 par")
+
     app.run(port=5001, debug=True, host='0.0.0.0')
