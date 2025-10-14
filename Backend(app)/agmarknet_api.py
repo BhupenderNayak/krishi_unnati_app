@@ -52,11 +52,11 @@ def scrape_price_data(commodity, state, district, market, days):
         state_dropdown = wait.until(EC.element_to_be_clickable((By.ID, "ddlState")))
         Select(state_dropdown).select_by_visible_text(state)
         
-
+       
         wait.until(EC.presence_of_element_located((By.XPATH, f"//select[@id='ddlDistrict']/option[text()='{district}']")))
         Select(driver.find_element(By.ID, "ddlDistrict")).select_by_visible_text(district)
 
-
+       
         wait.until(EC.presence_of_element_located((By.XPATH, f"//select[@id='ddlMarket']/option[text()='{market}']")))
         Select(driver.find_element(By.ID, "ddlMarket")).select_by_visible_text(market)
 
@@ -76,10 +76,10 @@ def scrape_price_data(commodity, state, district, market, days):
         else:
             price_rows = driver.find_elements(By.XPATH, "//*[@id='cphBody_GridPriceData']/tbody/tr")
             
-            for row in price_rows[1:]:
+            for row in price_rows[1:]: 
                 columns = row.find_elements(By.TAG_NAME, "td")
                 
-                if len(columns) > 8:
+                if len(columns) > 8: 
                     record = {
                         "date": columns[9].text,
                         "min_price": columns[6].text,
@@ -115,7 +115,7 @@ def get_price():
     
     return jsonify(data)
 
-
+# --- Run the App ---
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0',port=5000)
 
