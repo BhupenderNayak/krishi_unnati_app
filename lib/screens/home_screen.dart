@@ -5,6 +5,7 @@ import 'package:krishi_01/features/price.dart';
 import 'package:krishi_01/screens/chat_screen.dart';
 
 
+import '../features/marketstate.dart';
 import 'community_feed_screen.dart';
 import 'dashboard.dart';
 
@@ -24,8 +25,10 @@ class _HomeScreenState extends State<HomeScreen> {
     DashboardPage(),
     ChatScreen(),
     KrishiApp() ,
+    MarketplaceTab(),
     MarketplaceScreen(),
     CommunityFeedScreen(),
+
 
 
   ];
@@ -35,7 +38,8 @@ class _HomeScreenState extends State<HomeScreen> {
     'Dashboard',
     'Krishi Mitra AI',
     'Check Prices',
-    'MarketPlace',
+    'Store',
+    'Market',
     'Community'
 
   ];
@@ -50,7 +54,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_pageTitles[_selectedIndex]),
+        title:
+        Text(_pageTitles[_selectedIndex]),
 
 
         actions: [
@@ -82,6 +87,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
             label: 'Prices',
+          ),
+          BottomNavigationBarItem(
+            icon:Icon(Icons.store),
+            label: 'Store',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.storefront),

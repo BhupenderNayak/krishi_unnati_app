@@ -165,7 +165,7 @@ class _DashboardPageState extends State<DashboardPage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Varanasi, UP', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('Sabzi Mandi, Delhi', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                 Text('28°C, Haze', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600)),
                 Text('Humidity: 65%', style: TextStyle(color: Colors.white70, fontSize: 14)),
               ],
